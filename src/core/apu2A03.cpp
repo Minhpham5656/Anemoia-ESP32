@@ -2,16 +2,16 @@
 #include "bus.h"
 #include "cpu6502.h"
 
-DMA_ATTR uint16_t Apu2A03::audio_buffer[AUDIO_BUFFER_SIZE * 2];
 constexpr uint8_t Apu2A03::duty_sequences[4][8];
 constexpr uint8_t Apu2A03::length_counter_lookup[32];
 constexpr uint8_t Apu2A03::triangle_sequence[32];
 constexpr uint16_t Apu2A03::noise_period_lookup[16];
 constexpr uint16_t Apu2A03::DMC_rate_lookup[16];
 
+static constexpr uint32_t APU_SAMPLE_RATE = 44100;
+
 Apu2A03::Apu2A03()
 {
-    memset(audio_buffer, 0, sizeof(audio_buffer));
 }
 
 Apu2A03::~Apu2A03()
@@ -350,7 +350,7 @@ IRAM_ATTR void Apu2A03::clock()
 	// Put sound channels output into audio buffers
 	// Generate sample every 20.29221088 clocks
 	// (1.789773 MHz / 2) / 44100 Hz
-	pulse_hz += SAMPLE_RATE;
+	pulse_hz += APU_SAMPLE_RATE;
 	if (pulse_hz > 894886)
 	{
 		// Mute sound channels if muted
@@ -379,11 +379,6 @@ IRAM_ATTR void Apu2A03::clock()
 
 inline void Apu2A03::generateSample()
 {
-	#if DAC_PIN == 0
-    	uint16_t index = (buffer_index << 1); 
-	#elif DAC_PIN == 1
-    	uint16_t index = (buffer_index << 1) + 1; 
-	#endif
 	uint16_t sample = 0;
 	sample += pulse1.seq.output ? pulse1.env.output : 0;
 	sample += pulse2.seq.output ? pulse2.env.output: 0;
@@ -399,17 +394,7 @@ inline void Apu2A03::generateSample()
 	sample += prev_sample;
 	sample >>= 1;
 	sample &= 0xFF;
-    audio_buffer[index] = sample << 8;	
-
-	// Reset audio buffer index once filled
-	buffer_index++;
-	if (buffer_index >= AUDIO_BUFFER_SIZE) 
-    { 
-        buffer_index = 0; 
-
-        static size_t dummy;
-        i2s_write(I2S_NUM_0, audio_buffer, sizeof(audio_buffer), &dummy, portMAX_DELAY);
-    }
+	prev_sample = sample;
 }
 
 inline void Apu2A03::pulseChannelClock(sequencerUnit& seq, bool enable)

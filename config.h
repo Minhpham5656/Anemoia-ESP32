@@ -7,28 +7,29 @@
 #define CONTROLLER_TYPE 0
 
 // MicroSD card configuration
-#define SD_FREQ 80000000
+#define SD_FREQ 25000000
 
 // Screen Configuration
-#define SCREEN_ROTATION 1 // Screen orientation: 1 or 3 (1 = landscape, 3 = landscape flipped)
+#define SCREEN_ROTATION 1 // ST7735 160x80 landscape
 #define SCREEN_SWAP_BYTES true // Set to false if colors appear wrong
 // #define TFT_PARALLEL // Uncomment this line if using parallel communication instead of SPI communication
 
-// MicroSD card module Pins
-#define SD_MOSI_PIN 13
-#define SD_MISO_PIN 34
-#define SD_SCLK_PIN 26
-#define SD_CS_PIN -1
+// ESP32-S3 SPI pins (edit to match your PCB wiring)
+// Shared SPI bus between TFT + SD is recommended.
+#define SD_MOSI_PIN 11
+#define SD_MISO_PIN 13
+#define SD_SCLK_PIN 12
+#define SD_CS_PIN 4
 
-// Button pins
-#define A_BUTTON 22
-#define B_BUTTON 21
-#define LEFT_BUTTON 0
-#define RIGHT_BUTTON 12
-#define UP_BUTTON 15
-#define DOWN_BUTTON 5
-#define START_BUTTON 32
-#define SELECT_BUTTON 27
+// Button pins (GPIO button -> GND, active LOW with internal pull-up)
+#define A_BUTTON 1
+#define B_BUTTON 2
+#define LEFT_BUTTON 5
+#define RIGHT_BUTTON 6
+#define UP_BUTTON 7
+#define DOWN_BUTTON 8
+#define START_BUTTON 16
+#define SELECT_BUTTON 17
 
 // NES controller pins
 #define CONTROLLER_NES_CLK 5
@@ -45,11 +46,6 @@
 #define CONTROLLER_PSX_COMMAND 19
 #define CONTROLLER_PSX_ATTENTION 21
 #define CONTROLLER_PSX_CLK 22
-
-#define DAC_PIN 1 // 0 = GPIO25, 1 = GPIO26
-
-// Sound sample rate
-#define SAMPLE_RATE 44100
 
 #define FRAMESKIP
 // #define DEBUG // Uncomment this line if you want debug prints from serial

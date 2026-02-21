@@ -159,10 +159,43 @@ void Bus::connectScreen(TFT_eSPI* screen)
 
 IRAM_ATTR void Bus::renderImage(uint16_t scanline)
 {
+    int16_t screen_w = ptr_screen->width();
+    int16_t screen_h = ptr_screen->height();
+
+    constexpr int16_t nes_w = 256;
+    constexpr int16_t nes_h = 240;
+
+    int16_t src_crop_x = (nes_w > screen_w) ? ((nes_w - screen_w) / 2) : 0;
+    int16_t src_crop_y = (nes_h > screen_h) ? ((nes_h - screen_h) / 2) : 0;
+    int16_t render_w = (screen_w < nes_w) ? screen_w : nes_w;
+
+    int16_t src_start_y = scanline;
+    int16_t src_end_y = scanline + SCANLINES_PER_BUFFER;
+    int16_t visible_start = src_crop_y;
+    int16_t visible_end = src_crop_y + ((screen_h < nes_h) ? screen_h : nes_h);
+
+    if (src_end_y <= visible_start || src_start_y >= visible_end)
+        return;
+
+    int16_t copy_start_y = (src_start_y < visible_start) ? visible_start : src_start_y;
+    int16_t copy_end_y = (src_end_y > visible_end) ? visible_end : src_end_y;
+    int16_t rows = copy_end_y - copy_start_y;
+
+    int16_t src_row_offset = copy_start_y - src_start_y;
+    int16_t dest_y = copy_start_y - src_crop_y;
+    int16_t dest_x = (screen_w > nes_w) ? ((screen_w - nes_w) / 2) : 0;
+
+    static DMA_ATTR uint16_t render_buffer[SCANLINE_SIZE * SCANLINES_PER_BUFFER];
+    for (int16_t row = 0; row < rows; row++)
+    {
+        uint16_t* src = (uint16_t*)ppu.ptr_display + ((src_row_offset + row) * nes_w) + src_crop_x;
+        memcpy(render_buffer + (row * render_w), src, render_w * sizeof(uint16_t));
+    }
+
     #ifndef TFT_PARALLEL
-        ptr_screen->pushImageDMA(32, scanline, 256, SCANLINES_PER_BUFFER, ppu.ptr_display);
+        ptr_screen->pushImageDMA(dest_x, dest_y, render_w, rows, render_buffer);
     #else
-        ptr_screen->pushImage(32, scanline, 256, SCANLINES_PER_BUFFER, ppu.ptr_display);
+        ptr_screen->pushImage(dest_x, dest_y, render_w, rows, render_buffer);
     #endif
 } 
 
