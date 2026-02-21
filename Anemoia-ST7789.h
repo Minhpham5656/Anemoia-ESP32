@@ -1,8 +1,12 @@
-#define ST7789_DRIVER // Uncomment if using ST7789 display
-// #define ILI9341_DRIVER // Uncomment if using ILI9341 display
+#define ST7735_DRIVER
 
-#define TFT_WIDTH  240
-#define TFT_HEIGHT 320
+#define TFT_WIDTH  80
+#define TFT_HEIGHT 160
+
+// Typical ST7735 0.96" (160x80) offsets
+#define ST7735_GREENTAB160x80
+#define TFT_X_OFFSET 24
+#define TFT_Y_OFFSET 0
 
 #define TFT_RGB_ORDER TFT_BGR
 #define TFT_INVERSION_OFF
@@ -10,12 +14,12 @@
 #define SUPPORT_TRANSACTIONS
 #define USE_DMA
 
-#define TFT_MOSI   23
+#define TFT_MOSI   11
 #define TFT_MISO   -1
-#define TFT_SCLK   18
-#define TFT_CS     4
-#define TFT_DC     2
-#define TFT_RST    -1
+#define TFT_SCLK   12
+#define TFT_CS     10
+#define TFT_DC     9
+#define TFT_RST    14
 
 #define TOUCH_CS -1
 
@@ -33,4 +37,4 @@
 // this will save ~20kbytes of FLASH
 //#define SMOOTH_FONT
 
-#define SPI_FREQUENCY  80000000
+#define SPI_FREQUENCY  27000000

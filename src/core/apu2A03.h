@@ -5,9 +5,6 @@
 #include <cstdint>
 
 #include "config.h"
-#include "driver/i2s.h"
-
-#define AUDIO_BUFFER_SIZE 128
 
 class Bus;
 class Cpu6502;
@@ -22,10 +19,9 @@ public:
     void connectCPU(Cpu6502* n) { cpu = n; }
     void cpuWrite(uint16_t addr, uint8_t data);
     uint8_t cpuRead(uint16_t addr);
-	void setVolume(uint8_t vol);
+    void setVolume(uint8_t vol);
     void clock();
     void reset();
-    static uint16_t audio_buffer[AUDIO_BUFFER_SIZE * 2];
 
     uint8_t DMC_sample_byte = 0;
 	bool IRQ = false;
@@ -35,7 +31,7 @@ public:
 private:
 	Bus* bus = nullptr;
 	Cpu6502* cpu = nullptr;
-    uint32_t clock_counter = 0;
+	uint32_t clock_counter = 0;
 	uint32_t pulse_hz = 0;
 	uint16_t prev_sample = 0;
 	bool four_step_sequence_mode = true;
